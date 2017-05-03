@@ -24,8 +24,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    algorithmfifo.cpp \
+    algorithmlru.cpp \
+    algorithmopt.cpp \
+    algorithm.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    algorithmfifo.h \
+    algorithmlru.h \
+    algorithmopt.h \
+    algorithm.h
 
 FORMS    += mainwindow.ui

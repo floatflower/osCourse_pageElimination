@@ -1,17 +1,23 @@
 #ifndef ALGORITHMFIFO_H
 #define ALGORITHMFIFO_H
 
-#include <QWidget>
+#include <QObject>
+#include <QQueue>
 
-class AlgorithmFIFO : public QWidget
+#include "algorithm.h"
+
+class AlgorithmFIFO : public Algorithm
 {
     Q_OBJECT
 public:
-    explicit AlgorithmFIFO(QWidget *parent = 0);
-
+    explicit AlgorithmFIFO(QObject *parent = 0);
+    virtual void simulate();
 signals:
 
 public slots:
+private:
+    QQueue<char> *m_programRecord;
+    QVector<char> *m_programInMem;
 };
 
 #endif // ALGORITHMFIFO_H
