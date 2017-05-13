@@ -75,4 +75,5 @@ void AlgorithmOPT::simulate()
             }
         }
     }
+    emit simulateFinished();
 }

@@ -8,6 +8,7 @@
 #include <QQueue>
 #include <QDebug>
 #include <QMessageBox>
+#include <QTableWidget>
 
 #include "algorithmfifo.h"
 #include "algorithmlru.h"
@@ -19,22 +20,28 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_count(0)
 {
     ui->setupUi(this);
 
-    ui->pageTable->setColumnCount(programAmount);
-    ui->pageTable->setRowCount(pageAmount + 1);
+    m_pageTable = new QTableWidget(this);
+    m_pageTable->setColumnCount(programAmount);
+    m_pageTable->setRowCount(pageAmount + 1);
+
+
     m_programSerial = new QQueue<char>;
     srand(time(NULL));
     for (int i = 0; i < programAmount; i ++) {
         int randNum = rand() % programTypeAmount;
         char currentProgram = 'A' + randNum;
         QTableWidgetItem *item = new QTableWidgetItem(QString(currentProgram));
-        ui->pageTable->setHorizontalHeaderItem(i, item);
+        m_pageTable->setHorizontalHeaderItem(i, item);
         m_programSerial->push_back(currentProgram);
     }
-    ui->pageTable->setVerticalHeaderItem(pageAmount, new QTableWidgetItem(QString("Eliminate?")));
+
+    ui->verticalLayout->addWidget(m_pageTable);
+    m_pageTable->setVerticalHeaderItem(pageAmount, new QTableWidgetItem(QString("Eliminate?")));
 }
 
 MainWindow::~MainWindow()
@@ -68,6 +75,7 @@ void MainWindow::on_startButton_clicked()
     }
     m_algorithm->setPageNum(pageAmount);
     m_algorithm->setProgramSerial(m_programSerial);
+    connect(m_algorithm, SIGNAL(simulateFinished()), this, SLOT(onSimulateEnd()));
     m_algorithm->simulate();
 }
 
@@ -93,20 +101,48 @@ void MainWindow::onEliminate(bool needEliminate, int pageIndex, int serialIndex,
 {
     for (int i = 0; i < pageAmount; i ++) {
         if (i == pageIndex) {
-            ui->pageTable->setItem(i, serialIndex, new QTableWidgetItem(QString(programName)));
+            m_pageTable->setItem(i, serialIndex, new QTableWidgetItem(QString(programName)));
         }
         else if (serialIndex > 0){
-            QTableWidgetItem *lastItem = ui->pageTable->item(i, serialIndex - 1);
+            QTableWidgetItem *lastItem = m_pageTable->item(i, serialIndex - 1);
             if (lastItem != nullptr) {
                 QString lastProgram = lastItem->text();
-                ui->pageTable->setItem(i, serialIndex, new QTableWidgetItem(QString(lastProgram)));
+                m_pageTable->setItem(i, serialIndex, new QTableWidgetItem(QString(lastProgram)));
             }
         }
     }
     if (needEliminate) {
-        ui->pageTable->setItem(pageAmount, serialIndex, new QTableWidgetItem(QString("X")));
+        m_pageTable->setItem(pageAmount, serialIndex, new QTableWidgetItem(QString("X")));
+        m_count ++;
     }
     else {
-        ui->pageTable->setItem(pageAmount, serialIndex, new QTableWidgetItem(QString("O")));
+        m_pageTable->setItem(pageAmount, serialIndex, new QTableWidgetItem(QString("O")));
     }
+}
+
+void MainWindow::onSimulateEnd()
+{
+    qDebug()<<"Finished!";
+    QMessageBox messageBox(this);
+    messageBox.setText(QString("Simulate finished! Page miss rate: %1").arg(((float)m_count/programAmount)));
+    messageBox.exec();
+}
+
+void MainWindow::on_resetButton_clicked()
+{
+    QTableWidget *pageTable = new QTableWidget(this);
+    pageTable->setColumnCount(programAmount);
+    pageTable->setRowCount(pageAmount + 1);
+
+    ui->verticalLayout->removeWidget(m_pageTable);
+    m_pageTable = pageTable;
+
+    int programSerialSize = m_programSerial->size();
+
+    for (int i = 0; i < programSerialSize; i ++) {
+        QTableWidgetItem *item = new QTableWidgetItem(QString(m_programSerial->at(i)));
+        m_pageTable->setHorizontalHeaderItem(i, item);
+    }
+
+    ui->verticalLayout->addWidget(m_pageTable);
 }

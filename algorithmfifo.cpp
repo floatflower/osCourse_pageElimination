@@ -49,4 +49,5 @@ void AlgorithmFIFO::simulate()
             }
         }
     }
+    emit simulateFinished();
 }

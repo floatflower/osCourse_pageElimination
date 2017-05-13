@@ -51,4 +51,5 @@ void AlgorithmLRU::simulate()
             }
         }
     }
+    emit simulateFinished();
 }

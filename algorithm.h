@@ -15,6 +15,7 @@ public:
     virtual void simulate();
 signals:
     void eliminate(bool needEliminate, int pageIndex, int programIndex, char programName);
+    void simulateFinished();
 public slots:
 protected:
     QHash<char, int> *m_pageMap;
