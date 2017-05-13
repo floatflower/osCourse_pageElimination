@@ -14,7 +14,7 @@
 #include "algorithmlru.h"
 #include "algorithmopt.h"
 
-#define programAmount  40
+#define programAmount  32
 #define pageAmount 5
 #define programTypeAmount 8
 
